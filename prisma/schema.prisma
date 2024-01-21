@@ -16,7 +16,8 @@ model Profile{
   imageUrl String @db.Text
   email String @db.Text
   servers Server[]
-
+  members Member[]
+  channel Channel[]
   createdAt DateTime @default(now()) 
   updatedAt DateTime @updatedAt
 }
@@ -31,14 +32,55 @@ model Server{
   profileId String 
   profile Profile @relation( fields: [profileId], references: [id],onDelete: Cascade)
   createdAt DateTime @default(now())
-    updatedAt DateTime @updatedAt
-
+  updatedAt DateTime @updatedAt
+  members Member[]
+  channels Channel[]
   @@index([profileId])
 
 }
 
-enum MemberRole{
+enum MemberRole {
   ADMIN
   MODERATOR
   GUEST
+}
+
+model Member{
+  id String @default(uuid()) @id
+  role MemberRole @default(GUEST)
+  profileId String
+  profile Profile @relation(fields: [profileId],references: [id],onDelete: Cascade) 
+
+  serverId String
+  server Server @relation(fields: [serverId],references: [id],onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([profileId])
+  @@index([serverId])
+}
+
+
+enum ChanelType {
+  Text
+  AUDIO
+  VIDEO
+}
+
+model Channel{
+  id String @id @default(uuid())
+  name String
+  type ChanelType @default(Text)
+
+  profileId String
+  profile Profile @relation(fields: [profileId],references: [id],onDelete: Cascade)
+
+  serverId String
+  server Server @relation(fields: [serverId],references: [id],onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  @@index([serverId])
+  @@index([profileId])
 }
